@@ -1,0 +1,72 @@
+---
+title: "LegumeWeight"
+output: html_document
+params: 
+  output_dir: "../output"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Legume Weight
+Prepared by Loretta Clancy
+
+
+
+###Data Definitions:
+
+'Rhizobes', i.e. bacteria living on plant roots, can increase plant growth. This dataset investigates the effect of different rhizobial strains on legume growth. Variable are as follows:
+
+Block: independent experimental 'block'
+
+Plant: plant species (Ad: Acacia dealbata; Am: Acacia mearnsii; Dm: Daviesia mimosoides; Gc: Glycine clandestina; Hv: Hardenbergia violacea; Oe: Oxylobium ellipticum)
+
+Strain: rhizobial strain (note: values are descriptive strain identifiers, not quantitative measures)
+
+Weight: plant weight at conclusion of experiment.
+
+```{r}
+library(tidyverse)
+getwd()
+
+
+legumeData <- read_csv("data/legume_weights_rhizobia_20str.csv")
+str(legumeData)
+
+```
+
+Certain columns should be made into factors (as character)
+
+```{r}
+legumeData$Strain <- as.character(legumeData$Strain)
+str(legumeData)
+```
+
+I am not sure of any requirement to 'tidy' this data any further .... will look at this later if necessary
+
+and I recall from discussions that "Block" is of no consequence to this analysis (classroom discussion), so need to remember this.
+
+```{r}
+ggplot(legumeData, aes(x=Plant, y=weight, colour=Strain)) +
+       geom_point()
+```
+There are a few observations with missing measurements
+```{r}
+sum(is.na(legumeData$weight))
+```
+We will filter them out
+
+```{r}
+legumeData <- legumeData %>% 
+  filter(!is.na(legumeData$weight))
+
+```
+
+how many Plants, Strains are there
+```{r}
+legumeData %>% select(Plant) %>% distinct()
+legumeData %>% select(Strain) %>% distinct()
+```
+
