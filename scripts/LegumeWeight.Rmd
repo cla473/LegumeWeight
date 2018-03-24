@@ -1,9 +1,11 @@
 ---
 title: "LegumeWeight"
 output: html_document
-
 ---
-
+<!-- 
+To render the output to a different directory, knit it using the console:
+rmarkdown::render("scripts/LegumeWeight.Rmd", output_file="../output/LegumeWeight.html") 
+-->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -26,8 +28,6 @@ Prepared by Loretta Clancy
 
 ```{r}
 library(tidyverse)
-getwd()
-
 
 legumeData <- read_csv("../data/legume_weights_rhizobia_20str.csv")
 str(legumeData)
@@ -63,7 +63,7 @@ legumeData <- legumeData %>%
 
 ```
 
-how many Plants, Strains are there
+How many Plants, Strains are there
 ```{r}
 legumeData %>% select(Plant) %>% distinct()
 legumeData %>% select(Strain) %>% distinct()
@@ -80,24 +80,40 @@ ggplot(legumeData, aes(x=Strain, y=weight, colour=Strain)) +
     
 ```
 
-Questions:
-Does every plant have every strain
-Are certain strains related to the weight
+---
 
+##Question:  Does every plant have every strain?
 ```{r}
 data.frame(table(legumeData$Plant))
 
-legumeData %>% 
+checkData <- legumeData %>% 
   group_by(Plant, Strain) %>% 
-  summarise(count=n())
-```
-```{r}
-ggplot(legumeData, aes(x=Strain, y=weight)) +
-  geom_point() +
-  facet_grid(Strain~Plant)
+  summarise(count=n()) 
+
+ggplot(checkData, aes(x=Plant, y=Strain, size=count, colour=count)) +
+  geom_point() 
 ```
 
-The above shows that each Plant does have every Strain present ??
+---
+
+`**NOTE: Need to find out how to combine these legends into one **`
+
+---
+
+
+To view this in a data format:
+```{r}
+gridCheckData <- checkData %>% 
+  spread(key=Strain, value = count) 
+gridCheckData
+```
+
+The above shows that each Plant does have every Strain present, but the counts of the strains vary.
+
+##Questions:  Does every plant have every strain?
+
+
+
 
 
 
