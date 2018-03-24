@@ -41,13 +41,29 @@ legumeData$Strain <- as.character(legumeData$Strain)
 str(legumeData)
 ```
 
+These are defined here so that they can be used down below.
+Note:  Actual names have a line break in them
+```{r}
+plantNames <- list('Ad'="Acacia\ndealbata", 
+                   'Am'="Acacia\nmearnsii", 
+                   'Dm'="Daviesia\nmimosoides",
+                   'Gc'="Glycine\nclandestina", 
+                   'Hv'="Hardenbergia\nviolacea",
+                   'Oe'="Oxylobium\nellipticum"
+                   )
+plantLabeller <- function(variable,value){
+  return(plantNames[value])
+}
+```
+
+
 I am not sure of any requirement to 'tidy' this data any further .... will look at this later if necessary
 
 and I recall from discussions that "Block" is of no consequence to this analysis (classroom discussion), so need to remember this.
 
 ```{r}
 ggplot(legumeData, aes(x=Plant, y=weight, colour=Strain)) +
-  geom_point() 
+    geom_point() 
 ```
 
 
@@ -59,7 +75,7 @@ sum(is.na(legumeData$weight))
 We will filter them out
 ```{r}
 legumeData <- legumeData %>% 
-  filter(!is.na(legumeData$weight))
+    filter(!is.na(legumeData$weight))
 
 ```
 
@@ -72,11 +88,11 @@ legumeData %>% select(Strain) %>% distinct()
 The above chart doesn't really tell me much, need to try a different view
 ```{r}
 ggplot(legumeData, aes(x=Strain, y=weight, colour=Plant)) +
-  geom_point() 
+    geom_point() 
 
 ggplot(legumeData, aes(x=Strain, y=weight, colour=Strain)) +
-  geom_point() +
-  facet_grid(~Plant)
+    geom_point() +
+    facet_grid(~Plant, labeller = plantLabeller)
     
 ```
 
@@ -87,11 +103,11 @@ ggplot(legumeData, aes(x=Strain, y=weight, colour=Strain)) +
 data.frame(table(legumeData$Plant))
 
 checkData <- legumeData %>% 
-  group_by(Plant, Strain) %>% 
-  summarise(count=n()) 
+    group_by(Plant, Strain) %>% 
+    summarise(count=n()) 
 
 ggplot(checkData, aes(x=Plant, y=Strain, size=count, colour=count)) +
-  geom_point() 
+    geom_point() 
 ```
 
 ---
@@ -104,23 +120,53 @@ ggplot(checkData, aes(x=Plant, y=Strain, size=count, colour=count)) +
 To view this in a data format:
 ```{r}
 gridCheckData <- checkData %>% 
-  spread(key=Strain, value = count) 
+    spread(key=Strain, value = count) 
 gridCheckData
 ```
 
 The above shows that each Plant does have every Strain present, but the counts of the strains vary.
 
-##Questions:  Does every plant have every strain?
+##Questions:  Does the weight have any correlation with the strain for the plants?
+
+```{r}
+ggplot(legumeData, aes(x=Plant, weight=weight), position=position_stack(reverse = TRUE)) +
+    coord_flip() +
+    geom_bar(aes(fill=Strain), colour="black") +
+    theme(legend.position = "top")
+```
+
+Now lets have a look at the mean weights for the Strains
+
+```{r}
+checkData2 <- legumeData %>% 
+    group_by(Plant, Strain) %>% 
+    summarise(meanWeight = mean(weight)) 
+
+ggplot(checkData2, aes(x=Plant, y=Strain)) +
+    geom_tile(aes(fill=meanWeight)) +
+    scale_fill_gradient(low="LightBlue", high="DarkBlue", limits=c(0, 3)) +
+    labs(title = "Mean Weights of Strains for each Plant", fill="mean Weight")
+```
+
+Is this easier to read than
+
+```{r}
+ggplot(checkData2, aes(x=Plant, y=Strain, size=meanWeight)) +
+    geom_point() +
+    labs(title = "Mean Weights of Strains for each Plant", size="mean Weight")
+```
+
+Or another alternative
+```{r}
 
 
-
-
-
-
-
-
-
-
+ggplot(checkData2, aes(x=Strain, y=meanWeight, colour=Strain)) +
+    geom_point() +
+    facet_grid(~Plant, labeller=plantLabeller) +
+    labs(title = "Mean Weights of Strains for each Plant", 
+         y="mean Weight") +
+    theme(axis.text.x = element_blank())
+```
 
 
 
