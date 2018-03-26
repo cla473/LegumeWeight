@@ -1,6 +1,7 @@
 ---
 title: "LegumeWeight"
-output: html_document
+output: html_document:
+    keep_md: true
 ---
 <!-- 
 To render the output to a different directory, knit it using the console:
@@ -106,8 +107,9 @@ checkData <- legumeData %>%
     group_by(Plant, Strain) %>% 
     summarise(count=n()) 
 
-ggplot(checkData, aes(x=Plant, y=Strain, size=count, colour=count)) +
-    geom_point() 
+ggplot(checkData, aes(x=Plant, y=Strain)) +
+    geom_point(aes(colour=count, size=count)) +
+    guides(colour='legend')
 ```
 
 ---
